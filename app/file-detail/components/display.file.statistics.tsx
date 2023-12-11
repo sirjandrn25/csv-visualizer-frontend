@@ -8,18 +8,20 @@ import axios from "axios";
 import { useMemo } from "react";
 import StatisticChart from "./static-chart";
 const meta_info = `/file-meta-info`;
-const DisplayFileStatistics = () => {
+const DisplayFileStatistics = ({ file_url }: { file_url?: string }) => {
     const { data = {} } = useQuery({
         queryFn: async () => {
             try {
-                const result = await axios.get(`${base_url}${meta_info}`);
+                const result = await axios.get(
+                    `${base_url}${meta_info}?q=${file_url}`
+                );
 
                 return result?.data;
             } catch (error) {
                 return {};
             }
         },
-        queryKey: [meta_info],
+        queryKey: [meta_info, file_url],
     });
     const sanitizeData = useMemo(() => {
         const result: DictionaryType[] = [];

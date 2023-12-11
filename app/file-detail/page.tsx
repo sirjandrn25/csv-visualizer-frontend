@@ -15,14 +15,16 @@ const FileDetail = () => {
     const { data } = useQuery({
         queryFn: async () => {
             try {
-                const result = await axios.get(`${base_url}${table_info}`);
+                const result = await axios.get(
+                    `${base_url}${table_info}?q=${file_url}`
+                );
 
                 return result?.data;
             } catch (error) {
                 return {};
             }
         },
-        queryKey: [table_info],
+        queryKey: [table_info, file_url],
     });
 
     const columns = parseCsvHeaderToTableColumn(
@@ -31,7 +33,7 @@ const FileDetail = () => {
 
     return (
         <div className="container flex flex-col gap-6 py-6">
-            <DisplayFileStatistics />
+            <DisplayFileStatistics file_url={file_url as string} />
             <DataTable columns={columns} data={(data as any)?.data || []} />
         </div>
     );
