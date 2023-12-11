@@ -4,10 +4,14 @@ import { base_url, parseCsvHeaderToTableColumn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import DisplayFileStatistics from "./components/display.file.statistics";
+import { useSearchParams } from "next/navigation";
 
 const table_info = `/file-table-info`;
 
 const FileDetail = () => {
+    const searchParams = useSearchParams();
+    const file_url = searchParams.get("file");
+
     const { data } = useQuery({
         queryFn: async () => {
             try {

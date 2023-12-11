@@ -3,18 +3,48 @@ import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Button } from "./ui/button";
 import { Loader, UploadCloud } from "lucide-react";
+import axios from "axios";
 
-const FileUploader = () => {
+const url = "http://localhost:3000";
+const FileUploader = ({ onUpload }: { onUpload: (file: any) => void }) => {
     const [uploading, setUploading] = useState<boolean>(false);
     const [error, setError] = useState<any>();
-    const onDrop = useCallback((acceptedFiles: any, fileRejections: any) => {
-        setUploading(true);
-        setTimeout(() => setUploading(false), 5000);
-        if (fileRejections?.length) {
-            setError(fileRejections[0]?.errors[0]?.message);
-        }
-        // Do something with the files
-    }, []);
+    const onUploadFile = useCallback(
+        async (file: any) => {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const headers = { "Content-Type": "multipart/form-data" };
+            try {
+                const response = await axios({
+                    headers,
+                    method: "post",
+                    data: formData,
+                    url: `${url}/api/uploads`,
+                });
+
+                onUpload(response?.data?.file);
+            } catch (error) {
+                setError((error as any)?.message);
+            }
+            setUploading(false);
+        },
+        [onUpload]
+    );
+    const onDrop = useCallback(
+        (acceptedFiles: any, fileRejections: any) => {
+            setUploading(true);
+
+            if (fileRejections?.length) {
+                setError(fileRejections[0]?.errors[0]?.message);
+            } else if (acceptedFiles?.length) {
+                onUploadFile(acceptedFiles[0]);
+            }
+
+            // Do something with the files
+        },
+        [onUploadFile]
+    );
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
         multiple: false,
